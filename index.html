@@ -1,310 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Test Environment</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            min-height: 600px;
-        }
-
-        .control-panel {
-            padding: 30px;
-            border-right: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-
-        .message-panel {
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .section {
-            margin-bottom: 25px;
-        }
-
-        .section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .input-group input, .input-group textarea, .input-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #229954;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #7f8c8d;
-            transform: translateY(-2px);
-        }
-
-        .status {
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .status.disconnected {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
-        }
-
-        .status.connected {
-            background: #e8f5e8;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-
-        .status.connecting {
-            background: #fff3e0;
-            color: #ef6c00;
-            border: 1px solid #ffcc02;
-        }
-
-        .messages {
-            flex: 1;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            padding: 15px;
-            background: #fafafa;
-            overflow-y: auto;
-            max-height: 400px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-
-        .message {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border-left: 4px solid #ddd;
-        }
-
-        .message.sent {
-            background: #e3f2fd;
-            border-left-color: #2196f3;
-        }
-
-        .message.received {
-            background: #f3e5f5;
-            border-left-color: #9c27b0;
-        }
-
-        .message.system {
-            background: #fff3e0;
-            border-left-color: #ff9800;
-        }
-
-        .message.error {
-            background: #ffebee;
-            border-left-color: #f44336;
-        }
-
-        .message-time {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 3px;
-        }
-
-        .message-content {
-            word-break: break-all;
-        }
-
-        .preset-messages {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .preset-btn {
-            padding: 8px 12px;
-            background: #ecf0f1;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .preset-btn:hover {
-            background: #d5dbdb;
-            transform: translateY(-1px);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3498db;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .control-panel {
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
-            }
-            
-            .preset-messages {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>WebSocket Test Environment</h1>
             <p>Test WebSocket connections, send messages, and monitor real-time events</p>
         </div>
-        
+
         <div class="main-content">
             <div class="control-panel">
                 <div class="section">
                     <h3>Connection</h3>
                     <div class="input-group">
                         <label for="wsUrl">WebSocket URL</label>
-                        <input type="text" id="wsUrl" value="wss://echo.websocket.org" placeholder="wss://example.com/ws">
+                        <input type="text" id="wsUrl" value="wss://echo.websocket.org"
+                            placeholder="wss://example.com/ws">
                     </div>
                     <div class="input-group">
                         <label for="protocol">Protocol (Optional)</label>
@@ -320,9 +38,7 @@
                     <div class="input-group">
                         <label for="messageType">Message Type</label>
                         <select id="messageType">
-                            <!-- <option value="text">Text</option> -->
                             <option value="json">JSON</option>
-                            <!-- <option value="binary">Binary</option> -->
                         </select>
                     </div>
                     <div class="input-group">
@@ -336,9 +52,12 @@
                 <div class="section">
                     <h3>Preset Messages</h3>
                     <div class="preset-messages">
-                        <div class="preset-btn" data-message='{"type": "JOIN_CHANNEL","channelId": "channel_...","token": "ey..."}'>Join Channel</div>
-                        <div class="preset-btn" data-message='{"type": "NEW_MESSAGE","channelId": "channel_...","token": "ey...","content": "A new message"}'>Send Message</div>
-                        
+                        <div class="preset-btn"
+                            data-message='{"type": "JOIN_CHANNEL","channelId": "channel_...","token": "ey..."}'>Join
+                            Channel</div>
+                        <div class="preset-btn"
+                            data-message='{"type": "NEW_MESSAGE","channelId": "channel_...","token": "ey...","content": "A new message"}'>
+                            Send Message</div>
                     </div>
                 </div>
 
@@ -368,206 +87,7 @@
         </div>
     </div>
 
-    <script>
-        class WebSocketTester {
-            constructor() {
-                this.ws = null;
-                this.sentCount = 0;
-                this.receivedCount = 0;
-                this.initializeElements();
-                this.bindEvents();
-            }
-
-            initializeElements() {
-                this.wsUrlInput = document.getElementById('wsUrl');
-                this.protocolInput = document.getElementById('protocol');
-                this.connectionStatus = document.getElementById('connectionStatus');
-                this.connectBtn = document.getElementById('connectBtn');
-                this.disconnectBtn = document.getElementById('disconnectBtn');
-                this.messageTypeSelect = document.getElementById('messageType');
-                this.messageInput = document.getElementById('messageInput');
-                this.sendBtn = document.getElementById('sendBtn');
-                this.clearBtn = document.getElementById('clearBtn');
-                this.messagesDiv = document.getElementById('messages');
-                this.sentCountSpan = document.getElementById('sentCount');
-                this.receivedCountSpan = document.getElementById('receivedCount');
-            }
-
-            bindEvents() {
-                this.connectBtn.addEventListener('click', () => this.connect());
-                this.disconnectBtn.addEventListener('click', () => this.disconnect());
-                this.sendBtn.addEventListener('click', () => this.sendMessage());
-                this.clearBtn.addEventListener('click', () => this.clearMessages());
-                
-                this.messageInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && e.ctrlKey) {
-                        this.sendMessage();
-                    }
-                });
-
-                // Preset message buttons
-                document.querySelectorAll('.preset-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        this.messageInput.value = btn.dataset.message;
-                        this.messageTypeSelect.value = 'json';
-                    });
-                });
-            }
-
-            connect() {
-                const url = this.wsUrlInput.value.trim();
-                const protocol = this.protocolInput.value.trim();
-
-                if (!url) {
-                    this.addMessage('error', 'Please enter a WebSocket URL');
-                    return;
-                }
-
-                this.updateConnectionStatus('connecting', 'Connecting...');
-                this.connectBtn.disabled = true;
-
-                try {
-                    this.ws = protocol ? new WebSocket(url, protocol) : new WebSocket(url);
-                    
-                    this.ws.onopen = (event) => {
-                        this.updateConnectionStatus('connected', 'Connected');
-                        this.connectBtn.disabled = true;
-                        this.disconnectBtn.disabled = false;
-                        this.sendBtn.disabled = false;
-                        this.addMessage('system', `Connected to ${url}`);
-                    };
-
-                    this.ws.onmessage = (event) => {
-                        this.receivedCount++;
-                        this.updateStats();
-                        
-                        let messageContent;
-                        if (typeof event.data === 'string') {
-                            try {
-                                const parsed = JSON.parse(event.data);
-                                messageContent = JSON.stringify(parsed, null, 2);
-                            } catch {
-                                messageContent = event.data;
-                            }
-                        } else {
-                            messageContent = `Binary data (${event.data.size || event.data.byteLength} bytes)`;
-                        }
-                        
-                        this.addMessage('received', messageContent);
-                    };
-
-                    this.ws.onclose = (event) => {
-                        this.updateConnectionStatus('disconnected', 'Disconnected');
-                        this.connectBtn.disabled = false;
-                        this.disconnectBtn.disabled = true;
-                        this.sendBtn.disabled = true;
-                        
-                        const reason = event.reason || 'No reason provided';
-                        this.addMessage('system', `Connection closed (Code: ${event.code}, Reason: ${reason})`);
-                    };
-
-                    this.ws.onerror = (error) => {
-                        this.addMessage('error', `WebSocket error occurred`);
-                        console.error('WebSocket error:', error);
-                    };
-
-                } catch (error) {
-                    this.updateConnectionStatus('disconnected', 'Connection Failed');
-                    this.connectBtn.disabled = false;
-                    this.addMessage('error', `Failed to connect: ${error.message}`);
-                }
-            }
-
-            disconnect() {
-                if (this.ws) {
-                    this.ws.close(1000, 'User initiated disconnect');
-                }
-            }
-
-            sendMessage() {
-                if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                    this.addMessage('error', 'WebSocket is not connected');
-                    return;
-                }
-
-                const message = this.messageInput.value.trim();
-                const messageType = this.messageTypeSelect.value;
-
-                if (!message) {
-                    this.addMessage('error', 'Please enter a message');
-                    return;
-                }
-
-                try {
-                    let dataToSend;
-                    
-                    switch (messageType) {
-                        case 'json':
-                            // Validate JSON
-                            JSON.parse(message);
-                            dataToSend = message;
-                            break;
-                        case 'binary':
-                            dataToSend = new TextEncoder().encode(message);
-                            break;
-                        default:
-                            dataToSend = message;
-                    }
-
-                    this.ws.send(dataToSend);
-                    this.sentCount++;
-                    this.updateStats();
-                    
-                    this.addMessage('sent', message);
-                    this.messageInput.value = '';
-                    
-                } catch (error) {
-                    this.addMessage('error', `Failed to send message: ${error.message}`);
-                }
-            }
-
-            addMessage(type, content) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}`;
-                
-                const timeDiv = document.createElement('div');
-                timeDiv.className = 'message-time';
-                timeDiv.textContent = new Date().toLocaleTimeString();
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-                contentDiv.textContent = content;
-                
-                messageDiv.appendChild(timeDiv);
-                messageDiv.appendChild(contentDiv);
-                
-                this.messagesDiv.appendChild(messageDiv);
-                this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight;
-            }
-
-            clearMessages() {
-                this.messagesDiv.innerHTML = '';
-                this.sentCount = 0;
-                this.receivedCount = 0;
-                this.updateStats();
-                this.addMessage('system', 'Message history cleared');
-            }
-
-            updateConnectionStatus(status, text) {
-                this.connectionStatus.className = `status ${status}`;
-                this.connectionStatus.textContent = text;
-            }
-
-            updateStats() {
-                this.sentCountSpan.textContent = this.sentCount;
-                this.receivedCountSpan.textContent = this.receivedCount;
-            }
-        }
-
-        // Initialize the WebSocket tester when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            new WebSocketTester();
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
+
 </html>
